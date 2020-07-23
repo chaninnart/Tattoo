@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright   "2020-2030, Chaninnart Chansiu"
 #property link        ""
-#property description "Currency Strength Index"
+#property description "Currency Score"
 #property strict
 
 #property indicator_separate_window          //output at separate window
@@ -27,7 +27,7 @@
 #property indicator_color8     clrRed        //JPY
 
 //--- input parameter
-input int InputParameter1=10;  // Period
+input int InputParameter1=14;  // Period
 //--- data buffer (array that want to show in graph)
 //string CurrencyPair = "0AUDCAD1AUDCHF2AUDJPY3AUDNZD4AUDUSD5CADCHF6CADJPY7CHFJPY8EURAUD9EURCAD0EURCHF1EURGBP2EURJPY3EURNZD4EURUSD5GBPAUD6GBPCAD7GBPCHF8GBPJPY9GBPNZD0GBPUSD1NZDCAD2NZDCHF3NZDJPY4NZDUSD5USDCAD6USDCHF7USDJPY";
 
@@ -69,7 +69,7 @@ int OnInit(void)
 
 
 //--- name for DataWindow and indicator subwindow label
-   short_name="Currency Strength ROC("+IntegerToString(InputParameter1)+") ";
+   short_name="Currency Strength RSI("+IntegerToString(InputParameter1)+") ";
    IndicatorShortName(short_name);
    // Set Label showing in Data Window
    SetIndexLabel(0,"AUD (Yellow)");SetIndexLabel(1,"CAD (l.Green)");SetIndexLabel(2,"EUR (Blue)");SetIndexLabel(3,"GBP (l.Blue)");
@@ -117,50 +117,44 @@ int OnCalculate(const int rates_total,
    while(i>=0)  
      {
       int j=27; 
-      while(j >= 0){
-         pairs_value[j] =iCustom(pairs[j],0,"ROC1",InputParameter1,true,0,i);  //ROC Approach
-         
-//Print(pairs [j] +" : "+pairs_value[j]);
-
-      
-      
-  /* "AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD",   "CADCHF",	"CADJPY",   "CHFJPY",	"EURAUD",	"EURCAD",	
-   "EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD",	"GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	
-   "GBPUSD",	"NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD",   "USDCAD",   "USDCHF",	"USDJPY"*/
-      
-    /*  score0_AUD = AUDCAD+AUDCHF+AUDJPY+AUDNZD+AUDUSD -(EURAUD+GBPAUD);
-      score1_CAD = CADCHF+CADJPY -(AUDCAD+EURCAD+GBPCAD+NZDCAD+USDCAD);
-      score2_EUR = EURUSD+EURCAD+EURCHF+EURGBP+EURJPY+EURNZD+EURUSD;
-      score3_GBP = GBPAUD+GBPCAD+GBPCHF+GBPJPY+GBPNZD+GBPUSD -(EURGBP);
-      score4_NZD = NZDCAD+NZDCHF+NZDJPY+NZDUSD -(AUDNZD+EURNZD+GBPNZD);
-      score5_USD = USDCAD+USDCHF+USDJPY -(AUDUSD+EURUSD+GBPUSD+NZDUSD);
-      score6_CHF = CHFJPY -(AUDCHF+CADCHF+EURCHF+GBPCHF+NZDCHF+USDCHF);
-      score7_JPY = 0- (AUDJPY+CADJPY+CHFJPY+EURJPY+GBPJPY+NZDJPY+USDJPY);    */
-   
-     
-      score0_AUD = pairs_value[0]+pairs_value[1]+pairs_value[2]+pairs_value[3]+pairs_value[4] -(pairs_value[8]+pairs_value[15]);
-      score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);
-      score2_EUR = pairs_value[14]+pairs_value[9]+pairs_value[10]+pairs_value[11]+pairs_value[12]+pairs_value[13]+pairs_value[14];
-      score3_GBP = pairs_value[15]+pairs_value[16]+pairs_value[17]+pairs_value[18]+pairs_value[19]+pairs_value[20] -(pairs_value[11]);
-      score4_NZD = pairs_value[21]+pairs_value[22]+pairs_value[23]+pairs_value[24] -(pairs_value[3]+pairs_value[13]+pairs_value[19]);
-      score5_USD = pairs_value[25]+pairs_value[26]+pairs_value[27] -(pairs_value[4]+pairs_value[14]+pairs_value[20]+pairs_value[24]);
-      score6_CHF = pairs_value[7] -(pairs_value[1]+pairs_value[5]+pairs_value[10]+pairs_value[17]+pairs_value[22]+pairs_value[26]);
-      score7_JPY = 0- (pairs_value[2]+pairs_value[6]+pairs_value[7]+pairs_value[12]+pairs_value[18]+pairs_value[23]+pairs_value[27]); 
-         
- 
-     
-      //plot graph  --- adjust data's range for display  by -50   
-      DataBuffer0[i] = score0_AUD;
-      DataBuffer1[i] = score1_CAD;
-      DataBuffer2[i] = score2_EUR;
-      DataBuffer3[i] = score3_GBP;
-      DataBuffer4[i] = score4_NZD;
-      DataBuffer5[i] = score5_USD;
-      DataBuffer6[i] = score6_CHF;
-      DataBuffer7[i] = score7_JPY;
-
-         j--;
-      }  
+      for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {
+         pairs_value[j] =(iRSI(pairs[j],0,InputParameter1,PRICE_OPEN,i)-50);  //RSI Approach
+//Print(pairs [j] +" : "+pairs_value[j]);      
+            /* "AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD",   "CADCHF",	"CADJPY",   "CHFJPY",	"EURAUD",	"EURCAD",	
+            "EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD",	"GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	
+            "GBPUSD",	"NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD",   "USDCAD",   "USDCHF",	"USDJPY"*/
+            
+            /*  score0_AUD = AUDCAD+AUDCHF+AUDJPY+AUDNZD+AUDUSD -(EURAUD+GBPAUD);
+            score1_CAD = CADCHF+CADJPY -(AUDCAD+EURCAD+GBPCAD+NZDCAD+USDCAD);
+            score2_EUR = EURUSD+EURCAD+EURCHF+EURGBP+EURJPY+EURNZD+EURUSD;
+            score3_GBP = GBPAUD+GBPCAD+GBPCHF+GBPJPY+GBPNZD+GBPUSD -(EURGBP);
+            score4_NZD = NZDCAD+NZDCHF+NZDJPY+NZDUSD -(AUDNZD+EURNZD+GBPNZD);
+            score5_USD = USDCAD+USDCHF+USDJPY -(AUDUSD+EURUSD+GBPUSD+NZDUSD);
+            score6_CHF = CHFJPY -(AUDCHF+CADCHF+EURCHF+GBPCHF+NZDCHF+USDCHF);
+            score7_JPY = 0- (AUDJPY+CADJPY+CHFJPY+EURJPY+GBPJPY+NZDJPY+USDJPY);    */
+                 
+      } 
+            score0_AUD = pairs_value[0]+pairs_value[1]+pairs_value[2]+pairs_value[3]+pairs_value[4] -(pairs_value[8]+pairs_value[15]);
+            score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);
+            score2_EUR = pairs_value[14]+pairs_value[9]+pairs_value[10]+pairs_value[11]+pairs_value[12]+pairs_value[13]+pairs_value[14];
+            score3_GBP = pairs_value[15]+pairs_value[16]+pairs_value[17]+pairs_value[18]+pairs_value[19]+pairs_value[20] -(pairs_value[11]);
+            score4_NZD = pairs_value[21]+pairs_value[22]+pairs_value[23]+pairs_value[24] -(pairs_value[3]+pairs_value[13]+pairs_value[19]);
+            score5_USD = pairs_value[25]+pairs_value[26]+pairs_value[27] -(pairs_value[4]+pairs_value[14]+pairs_value[20]+pairs_value[24]);
+            score6_CHF = pairs_value[7] -(pairs_value[1]+pairs_value[5]+pairs_value[10]+pairs_value[17]+pairs_value[22]+pairs_value[26]);
+            score7_JPY = 0- (pairs_value[2]+pairs_value[6]+pairs_value[7]+pairs_value[12]+pairs_value[18]+pairs_value[23]+pairs_value[27]); 
+               
+       
+           
+            //plot graph  --- adjust data's range for display  by -50   
+            DataBuffer0[i] = score0_AUD;
+            DataBuffer1[i] = score1_CAD;
+            DataBuffer2[i] = score2_EUR;
+            DataBuffer3[i] = score3_GBP;
+            DataBuffer4[i] = score4_NZD;
+            DataBuffer5[i] = score5_USD;
+            DataBuffer6[i] = score6_CHF;
+            DataBuffer7[i] = score7_JPY;
+       
       i--;
      }
 //---
