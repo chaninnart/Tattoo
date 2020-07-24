@@ -109,16 +109,15 @@ int OnCalculate(const int rates_total,
 //--- check for bars count and input parameter
    if(rates_total<=InputParameter1 || InputParameter1<=0)return(0);  
 //--- prevent total recalculation
-   int i=rates_total-prev_calculated-1;
+   int bar_not_calculate = rates_total - prev_calculated-1;
 //--- current value should be recalculated
-   if(i<0)
-      {i=0;}
+//Print(bar_not_calculate);
+   if(bar_not_calculate<0){bar_not_calculate=0;}
 //---
-   while(i>=0)  
-     {
-      int j=27; 
+   while(bar_not_calculate>=0)  
+     {      
       for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {
-         pairs_value[j] =(iRSI(pairs[j],0,InputParameter1,PRICE_OPEN,i)-50);  //RSI Approach
+         pairs_value[j] =(iRSI(pairs[j],0,InputParameter1,PRICE_OPEN,bar_not_calculate)-50);  //RSI Approach         
 //Print(pairs [j] +" : "+pairs_value[j]);      
             /* "AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD",   "CADCHF",	"CADJPY",   "CHFJPY",	"EURAUD",	"EURCAD",	
             "EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD",	"GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	
@@ -146,20 +145,18 @@ int OnCalculate(const int rates_total,
        
            
             //plot graph  --- adjust data's range for display  by -50   
-            DataBuffer0[i] = score0_AUD;
-            DataBuffer1[i] = score1_CAD;
-            DataBuffer2[i] = score2_EUR;
-            DataBuffer3[i] = score3_GBP;
-            DataBuffer4[i] = score4_NZD;
-            DataBuffer5[i] = score5_USD;
-            DataBuffer6[i] = score6_CHF;
-            DataBuffer7[i] = score7_JPY;
+            DataBuffer0[bar_not_calculate] = score0_AUD;
+            DataBuffer1[bar_not_calculate] = score1_CAD;
+            DataBuffer2[bar_not_calculate] = score2_EUR;
+            DataBuffer3[bar_not_calculate] = score3_GBP;
+            DataBuffer4[bar_not_calculate] = score4_NZD;
+            DataBuffer5[bar_not_calculate] = score5_USD;
+            DataBuffer6[bar_not_calculate] = score6_CHF;
+            DataBuffer7[bar_not_calculate] = score7_JPY;
        
-      i--;
+      bar_not_calculate--;
      }
 //---
-     // Comment(ArraySize(DataBuffer1));
-     //Comment(counter++);
    return(rates_total);
   }
 
