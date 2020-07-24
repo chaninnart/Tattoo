@@ -44,6 +44,7 @@ void OnTick()
 //---
    getOrdersDetail();
    getOrderSummary();
+
    printInfo();
 
 
@@ -52,14 +53,8 @@ Comment("Open order Toal: "+my_order_summary.total+" / Net Profit: "+my_order_su
    
    
 }
-bool is_this_pair_in_OpenPairList(string pair_to_check){
-   bool a = true ;
-   if(((StringFind(my_order_summary.open_pairs_list,pair_to_check,0)))==-1){
-      a = false;
-   }
-   return(a);
-}
-     
+
+
  
 //+------------------------------------------------------------------+
 void getOrdersDetail(){      
@@ -106,11 +101,6 @@ string getOpenPairList(){
 return(temp);
 }
 
-
-void orderManagement (){
-   //Exit Strategy
-   
-}
 
 
 //Order Type 1.Market 2.Stip 3.Limit
