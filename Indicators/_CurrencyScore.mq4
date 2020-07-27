@@ -27,7 +27,7 @@
 #property indicator_color8     clrRed        //JPY
 
 //--- input parameter
-input int InputParameter1=14;  // Period
+input int InputParameter1=4;  // Period
 //--- data buffer (array that want to show in graph)
 //string CurrencyPair = "0AUDCAD1AUDCHF2AUDJPY3AUDNZD4AUDUSD5CADCHF6CADJPY7CHFJPY8EURAUD9EURCAD0EURCHF1EURGBP2EURJPY3EURNZD4EURUSD5GBPAUD6GBPCAD7GBPCHF8GBPJPY9GBPNZD0GBPUSD1NZDCAD2NZDCHF3NZDJPY4NZDUSD5USDCAD6USDCHF7USDJPY";
 
