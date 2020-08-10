@@ -27,6 +27,7 @@
 #property indicator_color8     clrRed        //JPY
 
 //--- input parameter
+//input int timeframe = 60; //1,5,15,30,60,240,1440 ,10080, 43200
 input int InputParameter1=4;  // Period
 //--- data buffer (array that want to show in graph)
 //string CurrencyPair = "0AUDCAD1AUDCHF2AUDJPY3AUDNZD4AUDUSD5CADCHF6CADJPY7CHFJPY8EURAUD9EURCAD0EURCHF1EURGBP2EURJPY3EURNZD4EURUSD5GBPAUD6GBPCAD7GBPCHF8GBPJPY9GBPNZD0GBPUSD1NZDCAD2NZDCHF3NZDJPY4NZDUSD5USDCAD6USDCHF7USDJPY";
@@ -117,6 +118,7 @@ int OnCalculate(const int rates_total,
    while(bar_not_calculate>=0)  
      {      
       for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {
+         //pairs_value[j] =(iRSI(pairs[j],timeframe,InputParameter1,PRICE_OPEN,bar_not_calculate)-50);  //RSI Approach  
          pairs_value[j] =(iRSI(pairs[j],0,InputParameter1,PRICE_OPEN,bar_not_calculate)-50);  //RSI Approach         
 //Print(pairs [j] +" : "+pairs_value[j]);      
             /* "AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD",   "CADCHF",	"CADJPY",   "CHFJPY",	"EURAUD",	"EURCAD",	
