@@ -82,6 +82,31 @@ void adx_indicator (double &array[],int timeframe,int period,int shift){   //arr
    }
 }
 
+void hma_indicator(double &array[],int timeframe,int period,int shift){
+string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
+   int hull_period = 14;  //Hull period
+   bool hull_is_pivot;
+   bool hull_pivot_status;
+   double hull_buffer0_val0;double hull_buffer0_val1;double hull_buffer0_val2;
+   double hull_buffer1_val0;double hull_buffer1_val1;double hull_buffer1_val2;
+   bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA
+   
+   for(int x=0; x<28; x++){   
+      hull_buffer0_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,0,1);
+      hull_buffer0_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,0,2);
+      hull_buffer1_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,1,1);
+      hull_buffer1_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,1,2);
+      hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
+      hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
+      hull_is_pivot = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
+         if (hull_is_pivot){
+            if (hull_revert_from_Hi_Low){hull_pivot_status = 0;}
+            else hull_pivot_status = 1;
+         } 
+   }
+   
+}
+
 //+------------------------------------------------------------------+
 //Helper Function
 //+------------------------------------------------------------------+
