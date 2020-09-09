@@ -49,11 +49,8 @@ void OnTick()
 //+------------------------------------------------------------------+
 void printInfo(){ 
    string text[30]; //Array of String store custom texts on screen
-    text[0]  = "    PAIR      |     STR      |     SLOPE";
-      //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
-      //for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x];}
-      //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
-    text[29] = "----------------END-----------------";
+    //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
+    //text[29] = "----------------END-----------------";
      
     int i=0; int k=30;
     while (i<ArraySize(text))  //create text object and shift the distance x,y

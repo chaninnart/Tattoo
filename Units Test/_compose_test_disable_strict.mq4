@@ -6,7 +6,7 @@
 #property copyright "Chaninnart"
 #property link      "https://www.mql5.com"
 #property version   "1.00"
-#property strict
+//#property strict
 
 /*   0"AUDCAD",	1"AUDCHF",	2"AUDJPY",	3"AUDNZD",	4"AUDUSD",
      5"CADCHF",	6"CADJPY",  7"CHFJPY",  8"EURAUD",	9"EURCAD",	
@@ -173,7 +173,7 @@ void closeAllOrder(int type){ //int type 1 = close all order buy, type 2 = close
 
 
 void CheckopenordersStatus(){
-   for(int x=0; x<28; x++){SymbolInfoTick(pairs[x],mqltick[x]);   open_pairs[x]=CheckOpenOrders(pairs[x]);} 
+   for(int i=0; i<28; i++){SymbolInfoTick(pairs[i],mqltick[i]);   open_pairs[i]=CheckOpenOrders(pairs[i]);} 
    for(int x=0; x<28; x++){if (open_pairs[x] == true){open_pairs_count[x] = CountOpenOrders(pairs[x]); open_pairs_profit[x] = CountOrdersProfit(pairs[x]);}}
 }
 
@@ -214,7 +214,7 @@ void printInfo(){
     MqlTick last_tick;
       for(int x=0; x<28; x++){
          SymbolInfoTick(pairs[x],last_tick);
-         text[x] = last_tick.time + " : "+pairs[x] +" : "+ NormalizeDouble(last_tick.bid,4) +" : "+ NormalizeDouble(last_tick.ask,4) ;
+         text[x] = TimeToStr(last_tick.time) + " : "+pairs[x] +" : "+ NormalizeDouble(last_tick.bid,4) +" : "+ NormalizeDouble(last_tick.ask,4) ;
       }
     text[29] = "----------------END-----------------";
      
