@@ -42,11 +42,16 @@ void OnTick()
   {
 //---
   double currency_score [8];
-  ccs_indicator(currency_score,60,ccs_parameter,0);  //pass array by reference to function called
-  Comment (currency_score[0]+"\n"+currency_score[1]+"\n"+currency_score[2]+"\n"+currency_score[3]+"\n"+currency_score[4]+"\n"+currency_score[5]+"\n"+currency_score[6]+"\n"+currency_score[7]);
+  //ccs_indicator(currency_score,60,ccs_parameter,0);  //pass array by reference to function called
+  bool hull5 = hma_indicator("EURUSD",5,14);
+
+//Comment (currency_score[0]+"\n"+currency_score[1]+"\n"+currency_score[2]+"\n"+currency_score[3]+"\n"+currency_score[4]+"\n"+currency_score[5]+"\n"+currency_score[6]+"\n"+currency_score[7]);
    
   }
 
+double ccs_score_array[8]; //global variable for ccs indicator
+string ccs_best_pair;
+string ccs_prev_best_pair;
 void ccs_indicator (double &array[],int timeframe,int period,int shift){   //array size=8      
    //timeframe 0 (current),1,5,15,30,60,240,1440,10080,43200
    string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};
@@ -82,20 +87,20 @@ void adx_indicator (double &array[],int timeframe,int period,int shift){   //arr
    }
 }
 
-void hma_indicator(double &array[],int timeframe,int period,int shift){
-string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
-   int hull_period = 14;  //Hull period
+bool hull_pivot_status; //global variable for return hull pivot status
+bool hma_indicator(string symbol,int timeframe,int period){
+//string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
    bool hull_is_pivot;
-   bool hull_pivot_status;
+   //bool hull_pivot_status;
    double hull_buffer0_val0;double hull_buffer0_val1;double hull_buffer0_val2;
    double hull_buffer1_val0;double hull_buffer1_val1;double hull_buffer1_val2;
    bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA
    
-   for(int x=0; x<28; x++){   
-      hull_buffer0_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,0,1);
-      hull_buffer0_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,0,2);
-      hull_buffer1_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,1,1);
-      hull_buffer1_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",hull_period,1,2);
+  
+      hull_buffer0_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,1);
+      hull_buffer0_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,2);
+      hull_buffer1_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,1);
+      hull_buffer1_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,2);
       hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
       hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
       hull_is_pivot = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
@@ -103,7 +108,9 @@ string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	
             if (hull_revert_from_Hi_Low){hull_pivot_status = 0;}
             else hull_pivot_status = 1;
          } 
-   }
+Comment(hull_buffer0_val1 +" : "+ hull_buffer0_val2 + " : " + hull_buffer1_val1 +" : "+ hull_buffer1_val2); 
+//Comment(symbol+" : Hull is pivot = "+hull_is_pivot +" / Status = "+hull_pivot_status);         
+   return(hull_is_pivot);
    
 }
 

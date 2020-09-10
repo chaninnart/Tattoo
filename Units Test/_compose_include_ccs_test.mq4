@@ -38,7 +38,7 @@ double open_pairs_profit [28];
 //+------------------------------------------------------------------+
 int MagicNumber  = 5652534;         //Magic Number
 double   Lotsize = 0.1;      //Order Setting (Lot Size)
-double   StopLoss   = 0; //100;    //min 40
+double   StopLoss   = 100; //100;    //min 40
 double   TakeProfit = 0; //100;    //min 40
 
 
@@ -60,7 +60,6 @@ int OnInit()
       SymbolInfoTick(pairs[x],mqltick[x]);
       open_pairs[x]=CheckOpenOrders(pairs[x]);
       open_pairs_count[x] = CheckOpenOrders(pairs[x]);
-      hull_pivot_status[x] = false;
    }
    ArrayInitialize(open_pairs,EMPTY_VALUE);
 //---
@@ -76,55 +75,44 @@ int OnInit()
 void OnTick(){
 //---run sequence
    CheckopenordersStatus();
-//ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
+ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
    CheckLogicToManageOrder();
-   CheckLogicToOpenOrder();
+   //CheckLogicToOpenOrder();
    printInfo();   
 }
 
-void  CheckLogicToOpenOrder (){   
-   for(int x=0; x<28; x++){ 
-   
-   if(pairs[x]== "EURUSD"){ //!!!!!!!!!!!!!!!!! this code for backtesting on EURUSD ONLY !!!!!!!!!!
-      if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
-   }   
+void  CheckLogicToOpenOrder (){
+   for(int x=0; x<28; x++){
+      if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}      
    }
 }
 
 void  CheckLogicToManageOrder (){
    for(int x=0; x<28; x++){
-      if(open_pairs[x] > 0){ActivateManageOrderStrategy(pairs[x]);}      
+      if(open_pairs[x] > 0){ActivateManageOrderStrategy(x);}      
    }
 }
 
-
 //*********************************************************************LOGIC HERE!!!!!!
-
-void ActivateManageOrderStrategy(string symbol){   
-   if(open_pairs_profit[pair_string_convert_to_int(symbol)]>100){closeAllOrder(1);}
-}
-
-
 void ActivateOpenOrderStrategy(string symbol){      
    double adx_value=0.0;
       adx_value = iADX(symbol,30,14,PRICE_OPEN,MODE_MAIN,0);
-   bool hull5_is_pivot = false;   
-      hull5_is_pivot = hma_indicator(symbol,5,14);
-//Comment(adx_value+" : "+hull5_is_pivot);   
-   if(adx_value > 20 && hull5_is_pivot  ){         
+   bool hull5 = false;   
+      hull5 = hma_indicator(symbol,5,14);
+   
+      
+   if(symbol== ccs_best_pair && adx_value > 20 && hull5  ){      
       if(!hull_pivot_status[pair_string_convert_to_int(symbol)]){openBuy(symbol,"*****open buy");}
       if(hull_pivot_status[pair_string_convert_to_int(symbol)]){openSell(symbol,"*****open sell");}
-   }   
- /*  
-   // this is for real trade !!! not for backtesting   
-   if(symbol== ccs_best_pair && adx_value > 20 && hull5_is_pivot  ){         
-      if(!hull_pivot_status[pair_string_convert_to_int(symbol)]){openBuy(symbol,"*****open buy");}
-      if(hull_pivot_status[pair_string_convert_to_int(symbol)]){openSell(symbol,"*****open sell");}
-   }*/
-     
+   }
+
+
+//Comment(symbol+" : "+adx_value);      
 }
 
-
+void ActivateManageOrderStrategy(int int_pair){
+   if(open_pairs_profit[int_pair]>20){closeAllOrder(1);}
+}
 
 
 
@@ -132,6 +120,7 @@ void ActivateOpenOrderStrategy(string symbol){
 double ccs_score_array[8]; //global variable for ccs indicator
 string ccs_best_pair;
 string ccs_prev_best_pair;
+bool ccs_reverse_order = false; //if reverse symbol we habe to reverse order from buy -> sell 
 void ccs_indicator (double &array[],int timeframe,int period,int shift){   //array size=8      
    //timeframe 0 (current),1,5,15,30,60,240,1440,10080,43200
    //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};
@@ -157,12 +146,12 @@ void ccs_indicator (double &array[],int timeframe,int period,int shift){   //arr
    score_most_weekness = pair_score_symbol[ArrayMinimum(ccs_score_array,WHOLE_ARRAY,0)];
    string best_pair = score_most_strength+ score_most_weekness;
 
-   
+   ccs_reverse_order = false; // reset reverse order flag
    if (MarketInfo(best_pair,MODE_BID)== 0){best_pair = score_most_weekness+ score_most_strength;} //inverse bestpair CHFGBP -> GBPCHF   
-   if (ccs_best_pair != best_pair){ccs_prev_best_pair = ccs_best_pair;} //if changing the best pair collect the previous pair to variable ccs_prev_best_pair
+   if (ccs_best_pair != best_pair){ccs_prev_best_pair = ccs_best_pair; ccs_reverse_order = true;} //if changing the best pair collect the previous pair to variable ccs_prev_best_pair
    ccs_best_pair = best_pair;
       //score_most_strength = cc_score_array[ArrayMaximum(temp,WHOLE_ARRAY,0)];   
-//Comment(ccs_best_pair); 
+Comment(ccs_best_pair); 
      
 }
 
@@ -170,29 +159,25 @@ void ccs_indicator (double &array[],int timeframe,int period,int shift){   //arr
 
 
 //*********************************************************************INDICATOR HERE!!!!!!
-
 bool hull_pivot_status[28]; //global variable for return hull pivot status: 0 = HI -> LOW , 1 = LOW -> HI
 bool hma_indicator(string symbol,int timeframe,int period){
 //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
-   bool hull_is_pivot= false;   
+   bool hull_is_pivot;
+   //bool hull_pivot_status;
    double hull_buffer0_val0;double hull_buffer0_val1;double hull_buffer0_val2;
    double hull_buffer1_val0;double hull_buffer1_val1;double hull_buffer1_val2;
    bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA  
-//Comment(symbol+" "+timeframe+" "+period);        
+  
       hull_buffer0_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,1);
       hull_buffer0_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,2);
       hull_buffer1_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,1);
       hull_buffer1_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,2);
-//Comment(hull_buffer0_val1 +" : "+ hull_buffer0_val2 + " : " + hull_buffer1_val1 +" : "+ hull_buffer1_val2); 
-//Comment(iCustom("EURUSD",5,"hull_moving_average_2.0_nmc",14,0,1));    
       hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
       hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
       hull_is_pivot = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
-//Comment(symbol+pair_string_convert_to_int(symbol)); 
-      int converted_symbol = pair_string_convert_to_int(symbol);        
-         if (hull_is_pivot){      
-            if (hull_revert_from_Hi_Low){hull_pivot_status[converted_symbol] = 0;}
-            if (hull_revert_from_Low_Hi){hull_pivot_status[converted_symbol] = 1;}
+         if (hull_is_pivot){
+            if (hull_revert_from_Hi_Low){hull_pivot_status[pair_string_convert_to_int(symbol)] = 0;}
+            else hull_pivot_status[pair_string_convert_to_int(symbol)] = 1;
          } 
 //Comment(symbol+" : Hull is pivot = "+hull_is_pivot +" / Status = "+hull_pivot_status[pair_string_convert_to_int(symbol)]);         
    return(hull_is_pivot);
@@ -321,7 +306,7 @@ void printInfo(){
    string text[30]; //Array of String store custom texts on screen
     text[0]  = "    PAIR      |     STR      |     SLOPE";
       //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
-      for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+      //for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
       //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
     /*MqlTick last_tick;
       for(int x=0; x<28; x++){
@@ -329,9 +314,8 @@ void printInfo(){
          text[x] = last_tick.time + " : "+pairs[x] +" : "+ NormalizeDouble(last_tick.bid,4) +" : "+ NormalizeDouble(last_tick.ask,4)+" : OPEN = "+ open_pairs_count[x]+ " : Profit= "+ open_pairs_profit[x] ;
       }*/
     
-//danger backtest will freeze for this line !!!!! //    
-//for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 5,14 = "+  hma_indicator(pairs[x],5,14)  +  " : "+ hull_pivot_status[x];}
-    //for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+ ccs_score_array[x];}  //print ccs score
+    //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 5,14 = "+  hma_indicator(pairs[x],5,14)  +  " : "+ hull_pivot_status[x];}
+    for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+ ccs_score_array[x];}  //print ccs score
     
     text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
      
