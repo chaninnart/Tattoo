@@ -79,13 +79,14 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnTick(){
 //---run sequence
-   CheckOpenOrdersStatus();
-//---update data    
+   
+//---update data 
+   CheckOpenOrdersStatus();   
    ccs_indicator (ccs_score_array,240,14,0); //update currency strength 
    for(int x=0; x<28; x++){
       SymbolInfoTick(pairs[x],mqltick[x]);
       //open_pairs[x]=CheckOpenOrders(pairs[x]);
-      //open_pairs_count[x] = CheckOpenOrders(pairs[x]);
+      //open_pairs_count[x] = CountOpenOrders(pairs[x]);
       
    }
 
@@ -114,7 +115,8 @@ void  CheckLogicToManageOrder (){
 
 void ActivateManageOrderStrategy(string symbol){   
 //Comment ("IN Manage /"+symbol+" Profit:  "+open_pairs_profit[pair_string_convert_to_int(symbol)]);
-   if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>5){closeAllOrder(1);closeAllOrder(2);}
+   if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>0){closeAllOrder(1);closeAllOrder(2);}
+   
 }
 
 
@@ -146,17 +148,21 @@ void ActivateOpenOrderStrategy(string symbol){
 
 
 //*********************************************************************INDICATOR HERE!!!!!!
+
 double ccs_score_array[8]; //global variable for ccs indicator
 string ccs_best_pair;  string ccs_prev_best_pair;
-void ccs_indicator (double &array[],int timeframe,int period,int shift){   //array size=8      
+
+void ccs_indicator (double &array[],int timeframe,int period,int shift){   //array size=8 
+       
    //timeframe 0 (current),1,5,15,30,60,240,1440,10080,43200
    //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};
    string pair_score_symbol [8]= { "AUD", "CAD","EUR","GBP","NZD","USD","CHF","JPY" };
    double pairs_value [28];  
    double score0_AUD,score1_CAD,score2_EUR,score3_GBP,score4_NZD,score5_USD,score6_CHF,score7_JPY; 
    string score_most_strength; string score_most_weekness;  
+   string best_pair;
    
-   for(int x=0; x<28; x++){pairs_value[x] =(iRSI(pairs[x],timeframe,period,PRICE_OPEN,shift)-50);}   
+   for(int x=0; x<28; x++){pairs_value[x] =(iRSI(pairs[x],240,period,PRICE_OPEN,shift)-50);}   
    
       score0_AUD = pairs_value[0]+pairs_value[1]+pairs_value[2]+pairs_value[3]+pairs_value[4] -(pairs_value[8]+pairs_value[15]);
       score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);
@@ -168,10 +174,10 @@ void ccs_indicator (double &array[],int timeframe,int period,int shift){   //arr
       score7_JPY = 0- (pairs_value[2]+pairs_value[6]+pairs_value[7]+pairs_value[12]+pairs_value[18]+pairs_value[23]+pairs_value[27]);  
       array[0]=score0_AUD;array[1]=score1_CAD; array[2]=score2_EUR; array[3]=score3_GBP; 
       array[4]=score4_NZD;array[5]=score5_USD; array[6]=score6_CHF; array[7]=score7_JPY; 
-   
+   //ccs_score_array[3] = 0;
    score_most_strength = pair_score_symbol[ArrayMaximum(ccs_score_array,WHOLE_ARRAY,0)];
    score_most_weekness = pair_score_symbol[ArrayMinimum(ccs_score_array,WHOLE_ARRAY,0)];
-   string best_pair = score_most_strength+ score_most_weekness;
+   best_pair = score_most_strength+ score_most_weekness;
 
    
    if (MarketInfo(best_pair,MODE_BID)== 0){best_pair = score_most_weekness+ score_most_strength;} //inverse bestpair CHFGBP -> GBPCHF   
@@ -342,7 +348,7 @@ void printInfo(){
    string text[30]; //Array of String store custom texts on screen
     text[0]  = "    PAIR      |     STR      |     SLOPE";
       //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
-      for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+     for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+  open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
       
       //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
     /*MqlTick last_tick;
@@ -354,7 +360,8 @@ void printInfo(){
     //DANGER THIS LINE LOAD TO MUCH PROCESSING POWER !!!!!!!!!
     //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 5,14 = "+  hma_indicator(pairs[x],5,14)  +  " : "+ hull_pivot_status[x];}
     
-    //for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+ ccs_score_array[x];}  //print ccs score
+    //string pair_score_symbol [8]= { "AUD", "CAD","EUR","GBP","NZD","USD","CHF","JPY" };
+    //for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+pair_score_symbol[x]+" : "+ ccs_score_array[x];}  //print ccs score
  
     text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
 Comment("Previous Best PAIR = "+ ccs_prev_best_pair + " / Best Pair To Trade = " + ccs_best_pair);        
