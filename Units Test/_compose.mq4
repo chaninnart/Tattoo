@@ -6,7 +6,7 @@
 #property copyright "Chaninnart"
 #property link      "https://www.mql5.com"
 #property version   "1.00"
-#property strict
+//#property strict
 
 /*   0"AUDCAD",	1"AUDCHF",	2"AUDJPY",	3"AUDNZD",	4"AUDUSD",
      5"CADCHF",	6"CADJPY",  7"CHFJPY",  8"EURAUD",	9"EURCAD",	
@@ -56,13 +56,17 @@ int OnInit()
 //--- create timer
    EventSetTimer(1);
 //--- Array Initialize
+   ArrayInitialize(pairs_point,EMPTY_VALUE);
+   ArrayInitialize(open_pairs,EMPTY_VALUE);
+   ArrayInitialize(open_pairs_profit,0);
    for(int x=0; x<28; x++){
       SymbolInfoTick(pairs[x],mqltick[x]);
       open_pairs[x]=CheckOpenOrders(pairs[x]);
       open_pairs_count[x] = CheckOpenOrders(pairs[x]);
       hull_pivot_status[x] = false;
+      ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
    }
-   ArrayInitialize(open_pairs,EMPTY_VALUE);
+   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -75,8 +79,16 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnTick(){
 //---run sequence
-   CheckopenordersStatus();
-//ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
+   CheckOpenOrdersStatus();
+//---update data    
+   ccs_indicator (ccs_score_array,240,14,0); //update currency strength 
+   for(int x=0; x<28; x++){
+      SymbolInfoTick(pairs[x],mqltick[x]);
+      //open_pairs[x]=CheckOpenOrders(pairs[x]);
+      //open_pairs_count[x] = CheckOpenOrders(pairs[x]);
+      
+   }
+
    CheckLogicToManageOrder();
    CheckLogicToOpenOrder();
    printInfo();   
@@ -86,12 +98,14 @@ void  CheckLogicToOpenOrder (){
    
    
    for(int x=0; x<28; x++){
+      if(pairs [x] != ccs_best_pair){continue;}
       if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
    }
 }
 
 void  CheckLogicToManageOrder (){
    for(int x=0; x<28; x++){
+      if(pairs [x] != ccs_best_pair){continue;}
       if(open_pairs[x] > 0){ActivateManageOrderStrategy(pairs[x]);}      
    }
 }
@@ -99,7 +113,8 @@ void  CheckLogicToManageOrder (){
 //*********************************************************************LOGIC HERE!!!!!!
 
 void ActivateManageOrderStrategy(string symbol){   
-   if(open_pairs_profit[pair_string_convert_to_int(symbol)]>50){closeAllOrder(1);}
+//Comment ("IN Manage /"+symbol+" Profit:  "+open_pairs_profit[pair_string_convert_to_int(symbol)]);
+   if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>5){closeAllOrder(1);closeAllOrder(2);}
 }
 
 
@@ -110,9 +125,10 @@ void ActivateOpenOrderStrategy(string symbol){
    bool hull5_is_pivot = false;   
       hull5_is_pivot = hma_indicator(symbol,5,14);
 //Comment(adx_value+" : "+hull5_is_pivot);   
-   if(adx_value > 20 && hull5_is_pivot  ){         
-      if(!hull_pivot_status[pair_string_convert_to_int(symbol)]){openBuy(symbol,"*****open buy");}
-      if(hull_pivot_status[pair_string_convert_to_int(symbol)]){openSell(symbol,"*****open sell");}
+   if(adx_value > 20 && hull5_is_pivot  ){  
+            
+      if(!hull_pivot_status[pair_string_convert_to_int(symbol)]){openBuy(symbol,symbol+"*****open buy");}
+      if(hull_pivot_status[pair_string_convert_to_int(symbol)]){openSell(symbol,symbol+"*****open sell");}
    }
 
    
@@ -131,8 +147,7 @@ void ActivateOpenOrderStrategy(string symbol){
 
 //*********************************************************************INDICATOR HERE!!!!!!
 double ccs_score_array[8]; //global variable for ccs indicator
-string ccs_best_pair;
-string ccs_prev_best_pair;
+string ccs_best_pair;  string ccs_prev_best_pair;
 void ccs_indicator (double &array[],int timeframe,int period,int shift){   //array size=8      
    //timeframe 0 (current),1,5,15,30,60,240,1440,10080,43200
    //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};
@@ -177,15 +192,15 @@ bool hma_indicator(string symbol,int timeframe,int period){
 //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
    bool hull_is_pivot= false;
    //bool hull_pivot_status;
-   double hull_buffer0_val0;double hull_buffer0_val1;double hull_buffer0_val2;
-   double hull_buffer1_val0;double hull_buffer1_val1;double hull_buffer1_val2;
+   double hull_buffer0_val1;double hull_buffer0_val2;
+   double hull_buffer1_val1;double hull_buffer1_val2;
    bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA  
 //Comment(symbol+" "+timeframe+" "+period);        
       hull_buffer0_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,1);
       hull_buffer0_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,2);
       hull_buffer1_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,1);
       hull_buffer1_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,2);
-Comment(hull_buffer0_val1 +" : "+ hull_buffer0_val2 + " : " + hull_buffer1_val1 +" : "+ hull_buffer1_val2); 
+//Comment(hull_buffer0_val1 +" : "+ hull_buffer0_val2 + " : " + hull_buffer1_val1 +" : "+ hull_buffer1_val2); 
 //Comment(iCustom("EURUSD",5,"hull_moving_average_2.0_nmc",14,0,1));    
       hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
       hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
@@ -233,7 +248,7 @@ int openBuy (string symbol,string comment) {
    RefreshRates(); //try to avoid error 138 "http://www.earnforex.com/blog/ordersend-error-138-requote/"
    
 Print("Open Buy on "+ symbol+":"+ vask + ":"+sl+":"+tp+"*******************");   
-   int result= OrderSend(symbol,OP_BUY,Lotsize ,vask,3,sl,tp,comment,MagicNumber,0,clrGreen); 
+   int result= OrderSend(symbol,OP_BUY,Lotsize ,vask,10,sl,tp,comment,MagicNumber,0,clrGreen); 
 Print("Open Buy on "+ symbol+ " : condition "+comment + ":" +result); 
    return(result);  
 }
@@ -252,7 +267,7 @@ int openSell(string symbol,string comment){
    
    RefreshRates(); //try to avoid error 138 "http://www.earnforex.com/blog/ordersend-error-138-requote/"
 //Print("Open Buy on "+ symbol+":"+ vbid + ":"+sl+":"+tp+"*******************");      
-   int result= OrderSend(symbol,OP_SELL,Lotsize ,vbid,3,sl,tp,comment,MagicNumber,0,clrRed);  
+   int result= OrderSend(symbol,OP_SELL,Lotsize ,vbid,10,sl,tp,comment,MagicNumber,0,clrRed);  
 //Print("Open Sell on "+ symbol+ " : condition "+comment + ":" +result); 
    return(result); 
 }
@@ -268,9 +283,11 @@ void closeAllOrder(int type){ //int type 1 = close all order buy, type 2 = close
       switch(type){
          case 1:
             result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_BID),1000,0);
+            Print("Close All Order BUY: "+OrderSymbol());
             break;
          case 2:
             result =OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_ASK),1000,0);
+            Print("Close All Order SELL: "+OrderSymbol());
             break;
       }         
   }   
@@ -278,9 +295,11 @@ void closeAllOrder(int type){ //int type 1 = close all order buy, type 2 = close
 }
 
 
-void CheckopenordersStatus(){
+void CheckOpenOrdersStatus(){
    for(int x=0; x<28; x++){SymbolInfoTick(pairs[x],mqltick[x]);   open_pairs[x]=CheckOpenOrders(pairs[x]);} 
    for(int y=0; y<28; y++){if (open_pairs[y] == true){open_pairs_count[y] = CountOpenOrders(pairs[y]); open_pairs_profit[y] = CountOrdersProfit(pairs[y]);}}
+   //for(int x=0; x<28; x++){if (open_pairs[x] == true){open_pairs_count[x] = CountOpenOrders(pairs[x]); open_pairs_profit[x] = CountOrdersProfit(pairs[x]);}}
+
 }
 
 bool CheckOpenOrders(string symbol){
@@ -290,12 +309,13 @@ bool CheckOpenOrders(string symbol){
    }  return(false);
 }
 
-int CountOpenOrders(string symbol){
+int CountOpenOrders(string symbol){   
    int counter=0;
 //Comment (OrdersTotal());   
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
       OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) counter++;
+      if( OrderSymbol() == "EURGBP" ) Print(OrdersTotal()+" /"+i+" : "+counter+" : "+symbol);
    }  return(counter);
 }
 
@@ -322,7 +342,8 @@ void printInfo(){
    string text[30]; //Array of String store custom texts on screen
     text[0]  = "    PAIR      |     STR      |     SLOPE";
       //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
-      //for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+      for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+      
       //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
     /*MqlTick last_tick;
       for(int x=0; x<28; x++){
@@ -334,9 +355,9 @@ void printInfo(){
     //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 5,14 = "+  hma_indicator(pairs[x],5,14)  +  " : "+ hull_pivot_status[x];}
     
     //for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+ ccs_score_array[x];}  //print ccs score
-    
+ 
     text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
-     
+Comment("Previous Best PAIR = "+ ccs_prev_best_pair + " / Best Pair To Trade = " + ccs_best_pair);        
     int i=0; int k=30;
     while (i<ArraySize(text))  //create text object and shift the distance x,y
     {

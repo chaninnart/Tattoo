@@ -61,7 +61,7 @@ int openBuy (string symbol,string comment) {
    
    RefreshRates(); //try to avoid error 138 "http://www.earnforex.com/blog/ordersend-error-138-requote/"
 //Print("Open Buy on "+ symbol+":"+ vask + ":"+sl+":"+tp+"*******************");   
-   int result= OrderSend(symbol,OP_BUY,Lotsize ,vask,3,sl,tp,comment,MagicNumber,0,clrGreen); 
+   int result= OrderSend(symbol,OP_BUY,Lotsize ,vask,10,sl,tp,comment,MagicNumber,0,clrGreen); 
 //Print("Open Buy on "+ symbol+ " : condition "+comment + ":" +result); 
    return(result);  
 }
@@ -80,7 +80,7 @@ int openSell(string symbol,string comment){
    
    RefreshRates(); //try to avoid error 138 "http://www.earnforex.com/blog/ordersend-error-138-requote/"
 //Print("Open Buy on "+ symbol+":"+ vbid + ":"+sl+":"+tp+"*******************");      
-   int result= OrderSend(symbol,OP_SELL,Lotsize ,vbid,3,sl,tp,comment,MagicNumber,0,clrRed);  
+   int result= OrderSend(symbol,OP_SELL,Lotsize ,vbid,10,sl,tp,comment,MagicNumber,0,clrRed);  
 //Print("Open Sell on "+ symbol+ " : condition "+comment + ":" +result); 
    return(result); 
 }

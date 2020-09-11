@@ -38,8 +38,8 @@ double open_pairs_profit [28];
 //+------------------------------------------------------------------+
 int MagicNumber  = 5652534;         //Magic Number
 double   Lotsize = 0.1;      //Order Setting (Lot Size)
-double   StopLoss   = 0; //100;    //min 40
-double   TakeProfit = 0; //100;    //min 40
+double   StopLoss   = 50; //100;    //min 40
+double   TakeProfit = 50; //100;    //min 40
 
 
 
@@ -101,7 +101,7 @@ void  CheckLogicToManageOrder (){
 //*********************************************************************LOGIC HERE!!!!!!
 
 void ActivateManageOrderStrategy(string symbol){   
-   if(open_pairs_profit[pair_string_convert_to_int(symbol)]>100){closeAllOrder(1);}
+   //if(open_pairs_profit[pair_string_convert_to_int(symbol)]>100){closeAllOrder(1);}
 }
 
 
