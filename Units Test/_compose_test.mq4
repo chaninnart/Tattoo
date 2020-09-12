@@ -175,8 +175,8 @@ bool hull_pivot_status[28]; //global variable for return hull pivot status: 0 = 
 bool hma_indicator(string symbol,int timeframe,int period){
 //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
    bool hull_is_pivot= false;   
-   double hull_buffer0_val0;double hull_buffer0_val1;double hull_buffer0_val2;
-   double hull_buffer1_val0;double hull_buffer1_val1;double hull_buffer1_val2;
+   double hull_buffer0_val1;double hull_buffer0_val2;
+   double hull_buffer1_val1;double hull_buffer1_val2;
    bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA  
 //Comment(symbol+" "+timeframe+" "+period);        
       hull_buffer0_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,1);
@@ -283,33 +283,37 @@ void CheckopenordersStatus(){
 }
 
 bool CheckOpenOrders(string symbol){
+   int result=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) return(true);
    }  return(false);
 }
 
 int CountOpenOrders(string symbol){
+   int result=0;
    int counter=0;
 //Comment (OrdersTotal());   
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) counter++;
    }  return(counter);
 }
 
 double CountOrdersProfit(string symbol){
+   int result=0;
    double profit=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) profit=profit+OrderProfit();
    }  return(profit);
 }
 
 double CountAllOrdersProfit(){
+   int result=0;
    double profit=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       profit=profit+OrderProfit();
    }  return(profit);
 }
@@ -321,7 +325,9 @@ void printInfo(){
    string text[30]; //Array of String store custom texts on screen
     text[0]  = "    PAIR      |     STR      |     SLOPE";
       //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
-      for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+ open_pairs[x]+ " : "+ open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+     for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+  open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
+  
+
       //for(int x=0; x<28; x++){text[x] =x+" : "+  pairs[x]  +  " : "+ pairs_point[x];}   
     /*MqlTick last_tick;
       for(int x=0; x<28; x++){

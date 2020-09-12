@@ -309,34 +309,38 @@ void CheckOpenOrdersStatus(){
 }
 
 bool CheckOpenOrders(string symbol){
+   int result=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result=OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) return(true);
    }  return(false);
 }
 
 int CountOpenOrders(string symbol){   
+   int result=0;
    int counter=0;
 //Comment (OrdersTotal());   
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) counter++;
       if( OrderSymbol() == "EURGBP" ) Print(OrdersTotal()+" /"+i+" : "+counter+" : "+symbol);
    }  return(counter);
 }
 
 double CountOrdersProfit(string symbol){
+   int result=0;
    double profit=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       if( OrderSymbol() == symbol ) profit=profit+OrderProfit();
    }  return(profit);
 }
 
 double CountAllOrdersProfit(){
+   int result=0;
    double profit=0;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
-      OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      result = OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
       profit=profit+OrderProfit();
    }  return(profit);
 }
