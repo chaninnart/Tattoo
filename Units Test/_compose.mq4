@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Chaninnart"
 #property link      "https://www.mql5.com"
-#property version   "1.00"
+#property version   "1.05"
 //#property strict
 
 /*   0"AUDCAD",	1"AUDCHF",	2"AUDJPY",	3"AUDNZD",	4"AUDUSD",
@@ -118,24 +118,24 @@ void ActivateManageOrderStrategy(string symbol){
 //Comment ("IN Manage /"+symbol+" Profit:  "+open_pairs_profit[pair_string_convert_to_int(symbol)]);
 
    //if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>0){closeAllOrder(1);closeAllOrder(2);}   
-   bool hull30_is_pivot[28];
-   bool hull30_pivot_status[28];   
-   hma_indicator_all_pairs(30,14,hull30_is_pivot,hull30_pivot_status);
+   bool hull60_is_pivot[28];
+   bool hull60_pivot_status[28];   
+   hma_indicator_all_pairs(60,14,hull60_is_pivot,hull60_pivot_status);
    
    int result=0;
    string test;
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
       result=OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
-      if((OrderType() == OP_BUY)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]== true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==0)
+      if((OrderType() == OP_BUY)&& hull60_is_pivot[pair_string_convert_to_int(OrderSymbol())]== true&& hull60_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==0)
          {result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_BID),1000,0);  };
-      if((OrderType() == OP_SELL)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]==true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==1) 
+      if((OrderType() == OP_SELL)&& hull60_is_pivot[pair_string_convert_to_int(OrderSymbol())]==true&& hull60_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==1) 
          {result =OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_ASK),1000,0);};
       test= test+":"+OrderSymbol()+":"+OrderType();
       Comment(test);
    }     
 //test only
-ArrayCopy(hull_is_pivot_test,hull30_is_pivot);
-ArrayCopy(hull_pivot_status_test,hull30_pivot_status);
+ArrayCopy(hull_is_pivot_test,hull60_is_pivot);
+ArrayCopy(hull_pivot_status_test,hull60_pivot_status);
    
 }
 
