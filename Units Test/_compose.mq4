@@ -63,7 +63,6 @@ int OnInit()
       SymbolInfoTick(pairs[x],mqltick[x]);
       open_pairs[x]=CheckOpenOrders(pairs[x]);
       open_pairs_count[x] = CheckOpenOrders(pairs[x]);
-      hull_pivot_status[x] = false;
       ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
    }
    
@@ -97,7 +96,7 @@ void OnTick(){
 
 void  CheckLogicToOpenOrder (){
    
-   
+//   ActivateOpenOrderStrategy(pairs[8]);
    for(int x=0; x<28; x++){
       if(pairs [x] != ccs_best_pair){continue;}
       if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
@@ -106,16 +105,37 @@ void  CheckLogicToOpenOrder (){
 
 void  CheckLogicToManageOrder (){
    for(int x=0; x<28; x++){
-      if(pairs [x] != ccs_best_pair){continue;}
-      if(open_pairs[x] > 0){ActivateManageOrderStrategy(pairs[x]);}      
+      //if(pairs [x] != ccs_best_pair){continue;}  
+      if(open_pairs[x] != 0){ActivateManageOrderStrategy(pairs[x]);}      
    }
 }
 
 //*********************************************************************LOGIC HERE!!!!!!
+bool hull_is_pivot_test[28] ;
+bool hull_pivot_status_test[28];
 
 void ActivateManageOrderStrategy(string symbol){   
 //Comment ("IN Manage /"+symbol+" Profit:  "+open_pairs_profit[pair_string_convert_to_int(symbol)]);
-   if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>0){closeAllOrder(1);closeAllOrder(2);}
+
+   //if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>0){closeAllOrder(1);closeAllOrder(2);}   
+   bool hull30_is_pivot[28];
+   bool hull30_pivot_status[28];   
+   hma_indicator_all_pairs(30,14,hull30_is_pivot,hull30_pivot_status);
+   
+   int result=0;
+   string test;
+   for( int i = 0 ; i < OrdersTotal() ; i++ ) {
+      result=OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
+      if((OrderType() == OP_BUY)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]== true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==0)
+         {result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_BID),1000,0);  };
+      if((OrderType() == OP_SELL)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]==true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==1) 
+         {result =OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_ASK),1000,0);};
+      test= test+":"+OrderSymbol()+":"+OrderType();
+      Comment(test);
+   }     
+//test only
+ArrayCopy(hull_is_pivot_test,hull30_is_pivot);
+ArrayCopy(hull_pivot_status_test,hull30_pivot_status);
    
 }
 
@@ -124,15 +144,16 @@ void ActivateManageOrderStrategy(string symbol){
 void ActivateOpenOrderStrategy(string symbol){      
    double adx_value=0.0;
       adx_value = iADX(symbol,30,14,PRICE_OPEN,MODE_MAIN,0);
-   bool hull5_is_pivot = false;   
-      hull5_is_pivot = hma_indicator(symbol,5,14);
+   bool hull5_is_pivot[]= {false}; //declare single element dynamic array
+   bool hull5_pivot_status[]={false};   
+  
+   hma_indicator(symbol,5,14,hull5_is_pivot,hull5_pivot_status);
 //Comment(adx_value+" : "+hull5_is_pivot);   
-   if(adx_value > 20 && hull5_is_pivot  ){  
+   if(adx_value > 20 && hull5_is_pivot[0]){ 
             
-      if(!hull_pivot_status[pair_string_convert_to_int(symbol)]){openBuy(symbol,symbol+"*****open buy");}
-      if(hull_pivot_status[pair_string_convert_to_int(symbol)]){openSell(symbol,symbol+"*****open sell");}
+      if(!hull5_pivot_status[0]){openBuy(symbol,symbol+"B");}
+      if(hull5_pivot_status[0]){openSell(symbol,symbol+"S");}
    }
-
    
  /*  
    // this is for real trade !!! not for backtesting   
@@ -189,14 +210,11 @@ void ccs_indicator (double &array[],int timeframe,int period,int shift){   //arr
 }
 
 
-
-
 //*********************************************************************INDICATOR HERE!!!!!!
 
-bool hull_pivot_status[28]; //global variable for return hull pivot status: 0 = HI -> LOW , 1 = LOW -> HI
-bool hma_indicator(string symbol,int timeframe,int period){
+void hma_indicator(string symbol,int timeframe,int period ,bool &hull_is_pivot[], bool &hull_pivot_status[]){
 //string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
-   bool hull_is_pivot= false;
+   hull_is_pivot[0]= false;
    //bool hull_pivot_status;
    double hull_buffer0_val1;double hull_buffer0_val2;
    double hull_buffer1_val1;double hull_buffer1_val2;
@@ -210,16 +228,39 @@ bool hma_indicator(string symbol,int timeframe,int period){
 //Comment(iCustom("EURUSD",5,"hull_moving_average_2.0_nmc",14,0,1));    
       hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
       hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
-      hull_is_pivot = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
+      hull_is_pivot[0] = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
 //Comment(symbol+pair_string_convert_to_int(symbol));         
-         if (hull_is_pivot){      
-            if (hull_revert_from_Hi_Low){hull_pivot_status[pair_string_convert_to_int(symbol)] = 0;}
-            if (hull_revert_from_Low_Hi){hull_pivot_status[pair_string_convert_to_int(symbol)] = 1;}
+         if (hull_is_pivot[0]){      
+            if (hull_revert_from_Hi_Low){hull_pivot_status[0] = 0;}
+            if (hull_revert_from_Low_Hi){hull_pivot_status[0] = 1;}
          } 
-//Comment(symbol+" : Hull is pivot = "+hull_is_pivot +" / Status = "+hull_pivot_status[pair_string_convert_to_int(symbol)]);         
-   return(hull_is_pivot);
-   
+//Comment(symbol+" : Hull is pivot = "+hull_is_pivot +" / Status = "+hull_pivot_status[pair_string_convert_to_int(symbol)]); 
 }
+
+void hma_indicator_all_pairs(int timeframe,int period ,bool &hull_is_pivot[], bool &hull_pivot_status[]){
+//string pairs[28] = {"AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD", "CADCHF",	"CADJPY", "CHFJPY", "EURAUD",	"EURCAD",	"EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD", "GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	"GBPUSD", "NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD", "USDCAD",   "USDCHF",	"USDJPY"};  
+   
+   double hull_buffer0_val1;double hull_buffer0_val2;
+   double hull_buffer1_val1;double hull_buffer1_val2;
+   bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA  
+
+      for(int x=0; x<28; x++){ 
+         hull_buffer0_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",period,0,1);
+         hull_buffer0_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",period,0,2);
+         hull_buffer1_val1 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",period,1,1);
+         hull_buffer1_val2 = iCustom(pairs[x],timeframe,"hull_moving_average_2.0_nmc",period,1,2);
+   
+         hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
+         hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
+         hull_is_pivot[x] = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
+        
+         if (hull_is_pivot[x]){      
+            if (hull_revert_from_Hi_Low){hull_pivot_status[x] = 0;}
+            if (hull_revert_from_Low_Hi){hull_pivot_status[x] = 1;}
+         } 
+      } 
+}
+
 
 int pair_string_convert_to_int(string symbol){
    int pair_int;
@@ -316,6 +357,8 @@ bool CheckOpenOrders(string symbol){
    }  return(false);
 }
 
+
+
 int CountOpenOrders(string symbol){   
    int result=0;
    int counter=0;
@@ -362,13 +405,13 @@ void printInfo(){
       }*/
     
     //DANGER THIS LINE LOAD TO MUCH PROCESSING POWER !!!!!!!!!
-    //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 5,14 = "+  hma_indicator(pairs[x],5,14)  +  " : "+ hull_pivot_status[x];}
+    //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 30,14 = "+  hull_is_pivot_test[x]  +  " : "+ hull_pivot_status_test[x];}
     
     //string pair_score_symbol [8]= { "AUD", "CAD","EUR","GBP","NZD","USD","CHF","JPY" };
     //for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+pair_score_symbol[x]+" : "+ ccs_score_array[x];}  //print ccs score
  
-    text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
-Comment("Previous Best PAIR = "+ ccs_prev_best_pair + " / Best Pair To Trade = " + ccs_best_pair);        
+//    text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
+//Comment("Previous Best PAIR = "+ ccs_prev_best_pair + " / Best Pair To Trade = " + ccs_best_pair);        
     int i=0; int k=30;
     while (i<ArraySize(text))  //create text object and shift the distance x,y
     {
