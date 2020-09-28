@@ -1,7 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                             CurrencyStrength.mq4 |
 //|                          Copyright 2020-2030, Chaninnart Chansiu |
-//|                                                                  |
+//|                                                              2.01|
 //+------------------------------------------------------------------+
 #property copyright   "2020-2030, Chaninnart Chansiu"
 #property link        ""
@@ -28,7 +28,8 @@
 
 //--- input parameter
 //input int timeframe = 60; //1,5,15,30,60,240,1440 ,10080, 43200
-input int InputParameter1=4;  // Period
+input int timeframe_rsi=240;  // Timeframe
+input int period_rsi = 14;     //Period (RSI)
 //--- data buffer (array that want to show in graph)
 //string CurrencyPair = "0AUDCAD1AUDCHF2AUDJPY3AUDNZD4AUDUSD5CADCHF6CADJPY7CHFJPY8EURAUD9EURCAD0EURCHF1EURGBP2EURJPY3EURNZD4EURUSD5GBPAUD6GBPCAD7GBPCHF8GBPJPY9GBPNZD0GBPUSD1NZDCAD2NZDCHF3NZDJPY4NZDUSD5USDCAD6USDCHF7USDJPY";
 
@@ -70,20 +71,20 @@ int OnInit(void)
 
 
 //--- name for DataWindow and indicator subwindow label
-   short_name="Currency Strength RSI("+IntegerToString(InputParameter1)+") ";
+   short_name="Currency Strength RSI("+IntegerToString(period_rsi)+") ";
    IndicatorShortName(short_name);
    // Set Label showing in Data Window
    SetIndexLabel(0,"AUD (Yellow)");SetIndexLabel(1,"CAD (l.Green)");SetIndexLabel(2,"EUR (Blue)");SetIndexLabel(3,"GBP (l.Blue)");
    SetIndexLabel(4,"NZD (Orange)");SetIndexLabel(5,"USD (Green)");SetIndexLabel(6,"CHF (White)");SetIndexLabel(7,"JPY (Red)"); 
      
 //--- check for input parameter
-   if(InputParameter1<=0)
+   if(period_rsi<=0)
      {
-      Print("Wrong input parameter Momentum Period=",InputParameter1);
+      Print("Wrong input parameter Momentum Period=",period_rsi);
       return(INIT_FAILED);
      }
 //---
-   SetIndexDrawBegin(0,InputParameter1);
+   SetIndexDrawBegin(0,period_rsi);
    
    ArrayInitialize(pairs_value,EMPTY_VALUE); //initialize array to store the value each pair
   
@@ -108,7 +109,7 @@ int OnCalculate(const int rates_total,
 
 
 //--- check for bars count and input parameter
-   if(rates_total<=InputParameter1 || InputParameter1<=0)return(0);  
+   if(rates_total<= period_rsi || period_rsi <=0)return(0);  
 //--- prevent total recalculation
    int bar_not_calculate = rates_total - prev_calculated-1;
 //--- current value should be recalculated
@@ -117,35 +118,18 @@ int OnCalculate(const int rates_total,
 //---
    while(bar_not_calculate>=0)  
      {      
-      for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {
-         //pairs_value[j] =(iRSI(pairs[j],timeframe,InputParameter1,PRICE_OPEN,bar_not_calculate)-50);  //RSI Approach  
-         pairs_value[j] =(iRSI(pairs[j],0,InputParameter1,PRICE_OPEN,bar_not_calculate)-50);  //RSI Approach         
-//Print(pairs [j] +" : "+pairs_value[j]);      
-            /* "AUDCAD",	"AUDCHF",	"AUDJPY",	"AUDNZD",	"AUDUSD",   "CADCHF",	"CADJPY",   "CHFJPY",	"EURAUD",	"EURCAD",	
-            "EURCHF",	"EURGBP",	"EURJPY",   "EURNZD",	"EURUSD",	"GBPAUD",	"GBPCAD",	"GBPCHF",   "GBPJPY",	"GBPNZD",	
-            "GBPUSD",	"NZDCAD",   "NZDCHF",	"NZDJPY",	"NZDUSD",   "USDCAD",   "USDCHF",	"USDJPY"*/
-            
-            /*  score0_AUD = AUDCAD+AUDCHF+AUDJPY+AUDNZD+AUDUSD -(EURAUD+GBPAUD);
-            score1_CAD = CADCHF+CADJPY -(AUDCAD+EURCAD+GBPCAD+NZDCAD+USDCAD);
-            score2_EUR = EURUSD+EURCAD+EURCHF+EURGBP+EURJPY+EURNZD+EURUSD;
-            score3_GBP = GBPAUD+GBPCAD+GBPCHF+GBPJPY+GBPNZD+GBPUSD -(EURGBP);
-            score4_NZD = NZDCAD+NZDCHF+NZDJPY+NZDUSD -(AUDNZD+EURNZD+GBPNZD);
-            score5_USD = USDCAD+USDCHF+USDJPY -(AUDUSD+EURUSD+GBPUSD+NZDUSD);
-            score6_CHF = CHFJPY -(AUDCHF+CADCHF+EURCHF+GBPCHF+NZDCHF+USDCHF);
-            score7_JPY = 0- (AUDJPY+CADJPY+CHFJPY+EURJPY+GBPJPY+NZDJPY+USDJPY);    */
-                 
-      } 
+      for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =(iRSI(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,bar_not_calculate)-50);}  //RSI Approach  
             score0_AUD = pairs_value[0]+pairs_value[1]+pairs_value[2]+pairs_value[3]+pairs_value[4] -(pairs_value[8]+pairs_value[15]);
-            score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);
-            score2_EUR = pairs_value[14]+pairs_value[9]+pairs_value[10]+pairs_value[11]+pairs_value[12]+pairs_value[13]+pairs_value[14];
-            score3_GBP = pairs_value[15]+pairs_value[16]+pairs_value[17]+pairs_value[18]+pairs_value[19]+pairs_value[20] -(pairs_value[11]);
+            score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);            
+            score2_EUR = pairs_value[14]+pairs_value[9]+pairs_value[10]+pairs_value[11]+pairs_value[12]+pairs_value[13]+pairs_value[14];  
+            score3_GBP = pairs_value[15]+pairs_value[16]+pairs_value[17]+pairs_value[18]+pairs_value[19]+pairs_value[20] -(pairs_value[11]); 
             score4_NZD = pairs_value[21]+pairs_value[22]+pairs_value[23]+pairs_value[24] -(pairs_value[3]+pairs_value[13]+pairs_value[19]);
-            score5_USD = pairs_value[25]+pairs_value[26]+pairs_value[27] -(pairs_value[4]+pairs_value[14]+pairs_value[20]+pairs_value[24]);
-            score6_CHF = pairs_value[7] -(pairs_value[1]+pairs_value[5]+pairs_value[10]+pairs_value[17]+pairs_value[22]+pairs_value[26]);
+            score5_USD = pairs_value[25]+pairs_value[26]+pairs_value[27] -(pairs_value[4]+pairs_value[14]+pairs_value[20]+pairs_value[24]);  
+            score6_CHF = pairs_value[7] -(pairs_value[1]+pairs_value[5]+pairs_value[10]+pairs_value[17]+pairs_value[22]+pairs_value[26]); 
             score7_JPY = 0- (pairs_value[2]+pairs_value[6]+pairs_value[7]+pairs_value[12]+pairs_value[18]+pairs_value[23]+pairs_value[27]); 
-               
-       
-           
+            
+
+                          
             //plot graph  --- adjust data's range for display  by -50   
             DataBuffer0[bar_not_calculate] = score0_AUD;
             DataBuffer1[bar_not_calculate] = score1_CAD;
