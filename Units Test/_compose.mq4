@@ -118,40 +118,45 @@ void ActivateManageOrderStrategy(string symbol){
 //Comment ("IN Manage /"+symbol+" Profit:  "+open_pairs_profit[pair_string_convert_to_int(symbol)]);
 
    //if((symbol != ccs_best_pair)&& open_pairs_profit[pair_string_convert_to_int(symbol)]>0){closeAllOrder(1);closeAllOrder(2);}   
-   bool hull30_is_pivot[28];
-   bool hull30_pivot_status[28];   
-   hma_indicator_all_pairs(30,14,hull30_is_pivot,hull30_pivot_status);
+   bool hull60_is_pivot[28];
+   bool hull60_pivot_status[28];   
+   hma_indicator_all_pairs(60,14,hull60_is_pivot,hull60_pivot_status);
    
    int result=0;
   
    for( int i = 0 ; i < OrdersTotal() ; i++ ) {
       result=OrderSelect( i, SELECT_BY_POS, MODE_TRADES );
-      if((OrderType() == OP_BUY)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]== true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==0)
+      if((OrderType() == OP_BUY)&& hull60_is_pivot[pair_string_convert_to_int(OrderSymbol())]== true&& hull60_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==0)
          {result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_BID),1000,0);  };
-      if((OrderType() == OP_SELL)&& hull30_is_pivot[pair_string_convert_to_int(OrderSymbol())]==true&& hull30_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==1) 
+      if((OrderType() == OP_SELL)&& hull60_is_pivot[pair_string_convert_to_int(OrderSymbol())]==true&& hull60_pivot_status[pair_string_convert_to_int(OrderSymbol())] ==1) 
          {result =OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_ASK),1000,0);};
    }        
 }
 
 
 void ActivateOpenOrderStrategy(string symbol){      
-   double adx_value=0.0;   adx_value = iADX(symbol,30,14,PRICE_OPEN,MODE_MAIN,0);
-   bool hull60_is_pivot[]= {false}; //declare single element dynamic array
-   bool hull60_pivot_status[]={false};   
-  
-   hma_indicator(symbol,60,14,hull60_is_pivot,hull60_pivot_status);
-   if (invert_symbol == 0 && hull60_is_pivot[0]){                  
-         if(!hull60_pivot_status[0]){openBuy(symbol,symbol+"B");}
-         if(hull60_pivot_status[0]){openSell(symbol,symbol+"S");}
+   //double adx_value=0.0;   adx_value = iADX(symbol,30,14,PRICE_OPEN,MODE_MAIN,0);
+   bool hull30_is_pivot[]= {false}; //declare single element dynamic array
+   bool hull30_pivot_status[]={false};   
+   
+   double hull60_buffer0_val1; double hull60_buffer1_val1;
+   hull60_buffer0_val1 = iCustom(symbol,60,"hull_moving_average_2.0_nmc",14,0,1); //signal buy buffer0 has value && buffer1 no value
+   hull60_buffer1_val1 = iCustom(symbol,60,"hull_moving_average_2.0_nmc",14,1,1); //signal sell buffer0 has value && buffer1 has value
+    
+   
+   hma_indicator(symbol,30,14,hull30_is_pivot,hull30_pivot_status);
+   if (invert_symbol == 0 && hull30_is_pivot[0]){                  
+         if(hull60_buffer0_val1 != NULL && hull60_buffer1_val1 == NULL && !hull30_pivot_status[0]){openBuy(symbol,symbol+"B");}
+         if(hull60_buffer0_val1 != NULL && hull60_buffer1_val1 != NULL && hull30_pivot_status[0]){openSell(symbol,symbol+"S");}
    }
-   if (invert_symbol == 1 && hull60_is_pivot[0]){                  
-         if(!hull60_pivot_status[0]){openSell(symbol,symbol+"S");}
-         if(hull60_pivot_status[0]){openBuy(symbol,symbol+"B");}
+   if (invert_symbol == 1 && hull30_is_pivot[0]){                  
+         if(hull60_buffer0_val1 != NULL && hull60_buffer1_val1 != NULL && !hull30_pivot_status[0]){openSell(symbol,symbol+"S");}
+         if(hull60_buffer0_val1 != NULL && hull60_buffer1_val1 == NULL && hull30_pivot_status[0]){openBuy(symbol,symbol+"B");}
    }
    
    
    
-text_comment = "Hull 60 on :" +symbol + " is pivot =" + hull60_is_pivot[0] + " /Pivot Status = " + hull60_pivot_status[1];  
+text_comment = "Hull 60 on :" +symbol + " is pivot =" + hull30_is_pivot[0] + " /Pivot Status = " + hull30_pivot_status[1];  
  /*  
    // this is for real trade !!! not for backtesting   
    if(symbol== ccs_best_pair && adx_value > 20 && hull5_is_pivot  ){         
