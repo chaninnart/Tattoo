@@ -96,7 +96,7 @@ void OnTick(){
 
 void  CheckLogicToOpenOrder (){
    
-   ActivateOpenOrderStrategy(pairs[8]);
+   //ActivateOpenOrderStrategy(pairs[8]);
    for(int x=0; x<28; x++){
       if(pairs [x] != ccs_best_pair[0]){continue;}
       if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
