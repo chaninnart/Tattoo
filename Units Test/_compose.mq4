@@ -98,15 +98,14 @@ void  CheckLogicToOpenOrder (){
    
    //ActivateOpenOrderStrategy(pairs[8]);
    for(int x=0; x<28; x++){
-      if(pairs [x] != ccs_best_pair[0]){continue;}
-      if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
+      if(pairs [x] == ccs_best_pair[0]){
+         if(open_pairs[x] == 0){ActivateOpenOrderStrategy(pairs[x]);}
+      }
    }
-   
 }
 
 void  CheckLogicToManageOrder (){
-   for(int x=0; x<28; x++){
-      //if(pairs [x] != ccs_best_pair){continue;}  
+   for(int x=0; x<28; x++){       
       if(open_pairs[x] != 0){ActivateManageOrderStrategy(pairs[x]);}      
    }
 }
@@ -172,6 +171,10 @@ text_comment = "Hull 60 on :" +symbol + " is pivot =" + hull30_is_pivot[0] + " /
 
 double ccs_score_array[8]; //global variable for ccs indicator
 double ccs_slope_1[8];
+double ccs_slope_2[8];
+double ccs_slope_3[8];
+double ccs_slope_4[8];
+
 string ccs_best_pair [2] = {"PREV BEST PAIR","LAST BEST PAIR"};
 bool invert_symbol=false;  //flag showing that best pair have to invert symbol
        
@@ -209,15 +212,69 @@ void ccs_indicator (double &array_score[],int timeframe,int period,int shift){  
       ccs_score_array[6] = iCustom(NULL,0,"_CurrencyScore",6,0);
       ccs_score_array[7] = iCustom(NULL,0,"_CurrencyScore",7,0); 
 
-      ccs_slope_1[0] = iCustom(NULL,0,"_CurrencyScore",0,4);
-      ccs_slope_1[1] = iCustom(NULL,0,"_CurrencyScore",1,4);
-      ccs_slope_1[2] = iCustom(NULL,0,"_CurrencyScore",2,4);
-      ccs_slope_1[3] = iCustom(NULL,0,"_CurrencyScore",3,4);
-      ccs_slope_1[4] = iCustom(NULL,0,"_CurrencyScore",4,4);
-      ccs_slope_1[5] = iCustom(NULL,0,"_CurrencyScore",5,4);
-      ccs_slope_1[6] = iCustom(NULL,0,"_CurrencyScore",6,4);
-      ccs_slope_1[7] = iCustom(NULL,0,"_CurrencyScore",7,4);       
+      ccs_slope_1[0] = iCustom(NULL,0,"_CurrencyScore",0,1);
+      ccs_slope_1[1] = iCustom(NULL,0,"_CurrencyScore",1,1);
+      ccs_slope_1[2] = iCustom(NULL,0,"_CurrencyScore",2,1);
+      ccs_slope_1[3] = iCustom(NULL,0,"_CurrencyScore",3,1);
+      ccs_slope_1[4] = iCustom(NULL,0,"_CurrencyScore",4,1);
+      ccs_slope_1[5] = iCustom(NULL,0,"_CurrencyScore",5,1);
+      ccs_slope_1[6] = iCustom(NULL,0,"_CurrencyScore",6,1);
+      ccs_slope_1[7] = iCustom(NULL,0,"_CurrencyScore",7,1);    
+    
+      ccs_slope_2[0] = iCustom(NULL,0,"_CurrencyScore",0,2);
+      ccs_slope_2[1] = iCustom(NULL,0,"_CurrencyScore",1,2);
+      ccs_slope_2[2] = iCustom(NULL,0,"_CurrencyScore",2,2);
+      ccs_slope_2[3] = iCustom(NULL,0,"_CurrencyScore",3,2);
+      ccs_slope_2[4] = iCustom(NULL,0,"_CurrencyScore",4,2);
+      ccs_slope_2[5] = iCustom(NULL,0,"_CurrencyScore",5,2);
+      ccs_slope_2[6] = iCustom(NULL,0,"_CurrencyScore",6,2);
+      ccs_slope_2[7] = iCustom(NULL,0,"_CurrencyScore",7,2);    
+      
+      ccs_slope_3[0] = iCustom(NULL,0,"_CurrencyScore",0,3);
+      ccs_slope_3[1] = iCustom(NULL,0,"_CurrencyScore",1,3);
+      ccs_slope_3[2] = iCustom(NULL,0,"_CurrencyScore",2,3);
+      ccs_slope_3[3] = iCustom(NULL,0,"_CurrencyScore",3,3);
+      ccs_slope_3[4] = iCustom(NULL,0,"_CurrencyScore",4,3);
+      ccs_slope_3[5] = iCustom(NULL,0,"_CurrencyScore",5,3);
+      ccs_slope_3[6] = iCustom(NULL,0,"_CurrencyScore",6,3);
+      ccs_slope_3[7] = iCustom(NULL,0,"_CurrencyScore",7,3);
+      
+      ccs_slope_4[0] = iCustom(NULL,0,"_CurrencyScore",0,4);
+      ccs_slope_4[1] = iCustom(NULL,0,"_CurrencyScore",1,4);
+      ccs_slope_4[2] = iCustom(NULL,0,"_CurrencyScore",2,4);
+      ccs_slope_4[3] = iCustom(NULL,0,"_CurrencyScore",3,4);
+      ccs_slope_4[4] = iCustom(NULL,0,"_CurrencyScore",4,4);
+      ccs_slope_4[5] = iCustom(NULL,0,"_CurrencyScore",5,4);
+      ccs_slope_4[6] = iCustom(NULL,0,"_CurrencyScore",6,4);
+      ccs_slope_4[7] = iCustom(NULL,0,"_CurrencyScore",7,4);
+      
+      ccs_slope_4[0] = ccs_slope_3[0] - ccs_slope_4[0] ;
+      ccs_slope_4[1] = ccs_slope_3[1] - ccs_slope_4[1] ;
+      ccs_slope_4[2] = ccs_slope_3[2] - ccs_slope_4[2] ;
+      ccs_slope_4[3] = ccs_slope_3[3] - ccs_slope_4[3] ;
+      ccs_slope_4[4] = ccs_slope_3[4] - ccs_slope_4[4] ;
+      ccs_slope_4[5] = ccs_slope_3[5] - ccs_slope_4[5] ;
+      ccs_slope_4[6] = ccs_slope_3[6] - ccs_slope_4[6] ;
+      ccs_slope_4[7] = ccs_slope_3[7] - ccs_slope_4[7] ;
    
+      ccs_slope_3[0] = ccs_slope_2[0] - ccs_slope_3[0] ;
+      ccs_slope_3[1] = ccs_slope_2[1] - ccs_slope_3[1] ;
+      ccs_slope_3[2] = ccs_slope_2[2] - ccs_slope_3[2] ;
+      ccs_slope_3[3] = ccs_slope_2[3] - ccs_slope_3[3] ;
+      ccs_slope_3[4] = ccs_slope_2[4] - ccs_slope_3[4] ;
+      ccs_slope_3[5] = ccs_slope_2[5] - ccs_slope_3[5] ;
+      ccs_slope_3[6] = ccs_slope_2[6] - ccs_slope_3[6] ;
+      ccs_slope_3[7] = ccs_slope_2[7] - ccs_slope_3[7] ;
+
+      ccs_slope_2[0] = ccs_slope_1[0] - ccs_slope_2[0] ;
+      ccs_slope_2[1] = ccs_slope_1[1] - ccs_slope_2[1] ;
+      ccs_slope_2[2] = ccs_slope_1[2] - ccs_slope_2[2] ;
+      ccs_slope_2[3] = ccs_slope_1[3] - ccs_slope_2[3] ;
+      ccs_slope_2[4] = ccs_slope_1[4] - ccs_slope_2[4] ;
+      ccs_slope_2[5] = ccs_slope_1[5] - ccs_slope_2[5] ;
+      ccs_slope_2[6] = ccs_slope_1[6] - ccs_slope_2[6] ;
+      ccs_slope_2[7] = ccs_slope_1[7] - ccs_slope_2[7] ;
+             
       ccs_slope_1[0] = ccs_score_array[0] - ccs_slope_1[0] ;
       ccs_slope_1[1] = ccs_score_array[1] - ccs_slope_1[1] ;
       ccs_slope_1[2] = ccs_score_array[2] - ccs_slope_1[2] ;
@@ -226,6 +283,8 @@ void ccs_indicator (double &array_score[],int timeframe,int period,int shift){  
       ccs_slope_1[5] = ccs_score_array[5] - ccs_slope_1[5] ;
       ccs_slope_1[6] = ccs_score_array[6] - ccs_slope_1[6] ;
       ccs_slope_1[7] = ccs_score_array[7] - ccs_slope_1[7] ; 
+      
+                       
    
    score_most_strength = pair_score_symbol[ArrayMaximum(ccs_score_array,WHOLE_ARRAY,0)];
    score_most_weekness = pair_score_symbol[ArrayMinimum(ccs_score_array,WHOLE_ARRAY,0)];
@@ -233,6 +292,7 @@ void ccs_indicator (double &array_score[],int timeframe,int period,int shift){  
    
    invert_symbol = false;
    if (MarketInfo(best_pair,MODE_BID)== 0){best_pair = score_most_weekness+ score_most_strength; invert_symbol = true;} //inverse bestpair CHFGBP -> GBPCHF   
+   
    if (best_pair != ccs_best_pair[0]){ccs_best_pair[1] = ccs_best_pair[0];} //if changing the best pair collect the previous pair to variable ccs_prev_best_pair
    ccs_best_pair[0] = best_pair;
      
@@ -432,7 +492,7 @@ void printInfo(){
     //DANGER THIS LINE LOAD TO MUCH PROCESSING POWER !!!!!!!!!
     //for(int x=0; x<28; x++){text[x] =pairs[x]+" Hull 30,14 = "+  hull_is_pivot_test[x]  +  " : "+ hull_pivot_status_test[x];}
     
-    for(int x=0; x<8; x++){text[x] = " CCS Score: "+ x  +  " : "+pair_score_symbol[x]+" : "+ NormalizeDouble(ccs_score_array[x],2) +"  /  SLOPE1:  "+ MathRound(ccs_slope_1[x]);}  //print ccs score
+    for(int x=0; x<8; x++){text[x] = pair_score_symbol[x]+" Score: "+ NormalizeDouble(ccs_score_array[x],2) +"  /  SLOPE :  "+ MathRound(ccs_slope_4[x])+" , " + MathRound(ccs_slope_3[x])+" , " + MathRound(ccs_slope_2[x])+" , "+ MathRound(ccs_slope_1[x]);}  //print ccs score
  
 //    text[29] = "**********All Order(s) profit = "+ CountAllOrdersProfit();
 Comment("Previous Best PAIR = "+ ccs_best_pair[1] + " / Best Pair To Trade = " + ccs_best_pair[0] + " || Invert Symbol: " + invert_symbol+ " / "+ text_comment);        
