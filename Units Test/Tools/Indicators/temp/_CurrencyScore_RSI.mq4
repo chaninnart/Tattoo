@@ -71,7 +71,7 @@ int OnInit(void)
 
 
 //--- name for DataWindow and indicator subwindow label
-   short_name="Currency Strength ADX("+IntegerToString(period_rsi)+") ";
+   short_name="Currency Strength RSI("+IntegerToString(period_rsi)+") ";
    IndicatorShortName(short_name);
    // Set Label showing in Data Window
    SetIndexLabel(0,"AUD (Yellow)");SetIndexLabel(1,"CAD (l.Green)");SetIndexLabel(2,"EUR (Blue)");SetIndexLabel(3,"GBP (l.Blue)");
@@ -118,10 +118,7 @@ int OnCalculate(const int rates_total,
 //---
    while(bar_not_calculate>=0)  
      {      
-      //for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =(iRSI(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,bar_not_calculate)-0);}  //RSI Approach  
-      //for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =iMomentum(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,bar_not_calculate)-0;}  //Momentum Approach
-      for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =iADX(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,MODE_MAIN,bar_not_calculate)-0;}  //Momentum Approach
-        
+      for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =(iRSI(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,bar_not_calculate));}  //RSI Approach  
             score0_AUD = pairs_value[0]+pairs_value[1]+pairs_value[2]+pairs_value[3]+pairs_value[4] -(pairs_value[8]+pairs_value[15]);
             score1_CAD = pairs_value[5]+pairs_value[6] -(pairs_value[0]+pairs_value[9]+pairs_value[16]+pairs_value[21]+pairs_value[25]);            
             score2_EUR = pairs_value[14]+pairs_value[9]+pairs_value[10]+pairs_value[11]+pairs_value[12]+pairs_value[13]+pairs_value[14];  

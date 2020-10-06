@@ -63,7 +63,7 @@ int OnInit()
       SymbolInfoTick(pairs[x],mqltick[x]);
       open_pairs[x]=CheckOpenOrders(pairs[x]);
       open_pairs_count[x] = CheckOpenOrders(pairs[x]);
-      ccs_indicator (ccs_score_array,240,14,0); //update currency strength   
+      ccs_indicator (ccs_score_array,5,4,0); //update currency strength   
    }
    
 //---
@@ -81,7 +81,7 @@ void OnTick(){
    
 //---update data 
    CheckOpenOrdersStatus();   
-   ccs_indicator (ccs_score_array,240,14,0); //update currency strength 
+   ccs_indicator (ccs_score_array,5,4,0); //update currency strength 
    for(int x=0; x<28; x++){
       SymbolInfoTick(pairs[x],mqltick[x]);
       //open_pairs[x]=CheckOpenOrders(pairs[x]);
@@ -89,7 +89,7 @@ void OnTick(){
       
    }
 
-   CheckLogicToManageOrder();
+   //CheckLogicToManageOrder();
    CheckLogicToOpenOrder();
    printInfo();   
 }
@@ -203,50 +203,50 @@ void ccs_indicator (double &array_score[],int timeframe,int period,int shift){  
       array_score[4]=score4_NZD;array_score[5]=score5_USD; array_score[6]=score6_CHF; array_score[7]=score7_JPY; */
       
       
-      ccs_score_array[0] = iCustom(NULL,0,"_CurrencyScore",240,14,0,0);
-      ccs_score_array[1] = iCustom(NULL,0,"_CurrencyScore",240,14,1,0);
-      ccs_score_array[2] = iCustom(NULL,0,"_CurrencyScore",240,14,2,0);
-      ccs_score_array[3] = iCustom(NULL,0,"_CurrencyScore",240,14,3,0);
-      ccs_score_array[4] = iCustom(NULL,0,"_CurrencyScore",240,14,4,0);
-      ccs_score_array[5] = iCustom(NULL,0,"_CurrencyScore",240,14,5,0);
-      ccs_score_array[6] = iCustom(NULL,0,"_CurrencyScore",240,14,6,0);
-      ccs_score_array[7] = iCustom(NULL,0,"_CurrencyScore",240,14,7,0); 
+      ccs_score_array[0] = iCustom(NULL,0,"_CurrencyScore",5,4,0,0);
+      ccs_score_array[1] = iCustom(NULL,0,"_CurrencyScore",5,4,1,0);
+      ccs_score_array[2] = iCustom(NULL,0,"_CurrencyScore",5,4,2,0);
+      ccs_score_array[3] = iCustom(NULL,0,"_CurrencyScore",5,4,3,0);
+      ccs_score_array[4] = iCustom(NULL,0,"_CurrencyScore",5,4,4,0);
+      ccs_score_array[5] = iCustom(NULL,0,"_CurrencyScore",5,4,5,0);
+      ccs_score_array[6] = iCustom(NULL,0,"_CurrencyScore",5,4,6,0);
+      ccs_score_array[7] = iCustom(NULL,0,"_CurrencyScore",5,4,7,0); 
 
-      ccs_slope_1[0] = iCustom(NULL,0,"_CurrencyScore",240,14,0,1);
-      ccs_slope_1[1] = iCustom(NULL,0,"_CurrencyScore",240,14,1,1);
-      ccs_slope_1[2] = iCustom(NULL,0,"_CurrencyScore",240,14,2,1);
-      ccs_slope_1[3] = iCustom(NULL,0,"_CurrencyScore",240,14,3,1);
-      ccs_slope_1[4] = iCustom(NULL,0,"_CurrencyScore",240,14,4,1);
-      ccs_slope_1[5] = iCustom(NULL,0,"_CurrencyScore",240,14,5,1);
-      ccs_slope_1[6] = iCustom(NULL,0,"_CurrencyScore",240,14,6,1);
-      ccs_slope_1[7] = iCustom(NULL,0,"_CurrencyScore",240,14,7,1);    
+      ccs_slope_1[0] = iCustom(NULL,0,"_CurrencyScore",5,4,0,1);
+      ccs_slope_1[1] = iCustom(NULL,0,"_CurrencyScore",5,4,1,1);
+      ccs_slope_1[2] = iCustom(NULL,0,"_CurrencyScore",5,4,2,1);
+      ccs_slope_1[3] = iCustom(NULL,0,"_CurrencyScore",5,4,3,1);
+      ccs_slope_1[4] = iCustom(NULL,0,"_CurrencyScore",5,4,4,1);
+      ccs_slope_1[5] = iCustom(NULL,0,"_CurrencyScore",5,4,5,1);
+      ccs_slope_1[6] = iCustom(NULL,0,"_CurrencyScore",5,4,6,1);
+      ccs_slope_1[7] = iCustom(NULL,0,"_CurrencyScore",5,4,7,1);    
     
-      ccs_slope_2[0] = iCustom(NULL,0,"_CurrencyScore",240,14,0,2);
-      ccs_slope_2[1] = iCustom(NULL,0,"_CurrencyScore",240,14,1,2);
-      ccs_slope_2[2] = iCustom(NULL,0,"_CurrencyScore",240,14,2,2);
-      ccs_slope_2[3] = iCustom(NULL,0,"_CurrencyScore",240,14,3,2);
-      ccs_slope_2[4] = iCustom(NULL,0,"_CurrencyScore",240,14,4,2);
-      ccs_slope_2[5] = iCustom(NULL,0,"_CurrencyScore",240,14,5,2);
-      ccs_slope_2[6] = iCustom(NULL,0,"_CurrencyScore",240,14,6,2);
-      ccs_slope_2[7] = iCustom(NULL,0,"_CurrencyScore",240,14,7,2);    
+      ccs_slope_2[0] = iCustom(NULL,0,"_CurrencyScore",5,4,0,2);
+      ccs_slope_2[1] = iCustom(NULL,0,"_CurrencyScore",5,4,1,2);
+      ccs_slope_2[2] = iCustom(NULL,0,"_CurrencyScore",5,4,2,2);
+      ccs_slope_2[3] = iCustom(NULL,0,"_CurrencyScore",5,4,3,2);
+      ccs_slope_2[4] = iCustom(NULL,0,"_CurrencyScore",5,4,4,2);
+      ccs_slope_2[5] = iCustom(NULL,0,"_CurrencyScore",5,4,5,2);
+      ccs_slope_2[6] = iCustom(NULL,0,"_CurrencyScore",5,4,6,2);
+      ccs_slope_2[7] = iCustom(NULL,0,"_CurrencyScore",5,4,7,2);    
       
-      ccs_slope_3[0] = iCustom(NULL,0,"_CurrencyScore",240,14,0,3);
-      ccs_slope_3[1] = iCustom(NULL,0,"_CurrencyScore",240,14,1,3);
-      ccs_slope_3[2] = iCustom(NULL,0,"_CurrencyScore",240,14,2,3);
-      ccs_slope_3[3] = iCustom(NULL,0,"_CurrencyScore",240,14,3,3);
-      ccs_slope_3[4] = iCustom(NULL,0,"_CurrencyScore",240,14,4,3);
-      ccs_slope_3[5] = iCustom(NULL,0,"_CurrencyScore",240,14,5,3);
-      ccs_slope_3[6] = iCustom(NULL,0,"_CurrencyScore",240,14,6,3);
-      ccs_slope_3[7] = iCustom(NULL,0,"_CurrencyScore",240,14,7,3);
+      ccs_slope_3[0] = iCustom(NULL,0,"_CurrencyScore",5,4,0,3);
+      ccs_slope_3[1] = iCustom(NULL,0,"_CurrencyScore",5,4,1,3);
+      ccs_slope_3[2] = iCustom(NULL,0,"_CurrencyScore",5,4,2,3);
+      ccs_slope_3[3] = iCustom(NULL,0,"_CurrencyScore",5,4,3,3);
+      ccs_slope_3[4] = iCustom(NULL,0,"_CurrencyScore",5,4,4,3);
+      ccs_slope_3[5] = iCustom(NULL,0,"_CurrencyScore",5,4,5,3);
+      ccs_slope_3[6] = iCustom(NULL,0,"_CurrencyScore",5,4,6,3);
+      ccs_slope_3[7] = iCustom(NULL,0,"_CurrencyScore",5,4,7,3);
       
-      ccs_slope_4[0] = iCustom(NULL,0,"_CurrencyScore",240,14,0,4);
-      ccs_slope_4[1] = iCustom(NULL,0,"_CurrencyScore",240,14,1,4);
-      ccs_slope_4[2] = iCustom(NULL,0,"_CurrencyScore",240,14,2,4);
-      ccs_slope_4[3] = iCustom(NULL,0,"_CurrencyScore",240,14,3,4);
-      ccs_slope_4[4] = iCustom(NULL,0,"_CurrencyScore",240,14,4,4);
-      ccs_slope_4[5] = iCustom(NULL,0,"_CurrencyScore",240,14,5,4);
-      ccs_slope_4[6] = iCustom(NULL,0,"_CurrencyScore",240,14,6,4);
-      ccs_slope_4[7] = iCustom(NULL,0,"_CurrencyScore",240,14,7,4);
+      ccs_slope_4[0] = iCustom(NULL,0,"_CurrencyScore",5,4,0,4);
+      ccs_slope_4[1] = iCustom(NULL,0,"_CurrencyScore",5,4,1,4);
+      ccs_slope_4[2] = iCustom(NULL,0,"_CurrencyScore",5,4,2,4);
+      ccs_slope_4[3] = iCustom(NULL,0,"_CurrencyScore",5,4,3,4);
+      ccs_slope_4[4] = iCustom(NULL,0,"_CurrencyScore",5,4,4,4);
+      ccs_slope_4[5] = iCustom(NULL,0,"_CurrencyScore",5,4,5,4);
+      ccs_slope_4[6] = iCustom(NULL,0,"_CurrencyScore",5,4,6,4);
+      ccs_slope_4[7] = iCustom(NULL,0,"_CurrencyScore",5,4,7,4);
       
       ccs_slope_4[0] = ccs_slope_3[0] - ccs_slope_4[0] ;
       ccs_slope_4[1] = ccs_slope_3[1] - ccs_slope_4[1] ;
