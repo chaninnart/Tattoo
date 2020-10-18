@@ -479,7 +479,7 @@ double CountAllOrdersProfit(){
 //+------------------------------------------------------------------+
 void printInfo(){ 
    string text[30]; //Array of String store custom texts on screen
-    text[0]  = "    PAIR      |     STR      |     SLOPE";
+    //text[0]  = "    PAIR      |     STR      |     SLOPE";
       //for(int x=0; x<28; x++){text[x+1]  = pairs[x]+ "    |     "+ x+ "    |     "+ "";}   
      //for(int x=0; x<28; x++){text[x] =x+" : "+  mqltick[x].time+ " : "+ pairs[x] + " : "+  open_pairs_count[x]+ " : "+ open_pairs_profit[x];}
       
