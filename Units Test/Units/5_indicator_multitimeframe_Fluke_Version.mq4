@@ -34,11 +34,16 @@ void OnTick()
   {
 //---
    double currency_score [8];
-   ccs_indicator(ccs_score_array5,5,14,0);
-   ccs_indicator(ccs_score_array30,30,14,0);
-   ccs_indicator(ccs_score_array60,60,14,0);
-   ccs_indicator(ccs_score_array240,240,14,0);
-   ccs_indicator(ccs_score_array1440,1440,14,0);
+  /* ccs_indicator(ccs_score_array5,5,14,2);
+   ccs_indicator(ccs_score_array30,30,14,2);
+   ccs_indicator(ccs_score_array60,60,14,4);
+   ccs_indicator(ccs_score_array240,240,14,6);
+   ccs_indicator(ccs_score_array1440,1440,14,3);*/
+   ccs_indicator(ccs_score_array5,240,14,2);
+   ccs_indicator(ccs_score_array30,240,14,3);
+   ccs_indicator(ccs_score_array60,240,14,5);
+   ccs_indicator(ccs_score_array240,240,14,8);
+   ccs_indicator(ccs_score_array1440,240,14,13);
    printInfo();
 
    
@@ -58,11 +63,11 @@ void ccs_indicator (double &array[],int timeframe,int period,int shift){   //arr
    double score0_AUD,score1_CAD,score2_EUR,score3_GBP,score4_NZD,score5_USD,score6_CHF,score7_JPY;   
    
    for(int x=0; x<28; x++){
-      if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,4))> 0){pairs_value[x] = 0;
-         if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,4))> 0.02*(iOpen(pairs[x],timeframe,0))){pairs_value[x] = 1;}
+      if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,shift))> 0){pairs_value[x] = 0;
+         if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,shift))> 0.01*(iOpen(pairs[x],timeframe,0))){pairs_value[x] = 1;}
       } 
-      if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,4))< 0){pairs_value[x] = -1;
-         if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,4))< 0.02*(iOpen(pairs[x],timeframe,0))){pairs_value[x] = -1;}
+      if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,shift))< 0){pairs_value[x] = 0;
+         if((iOpen(pairs[x],timeframe,0)-iOpen(pairs[x],timeframe,shift))< 0.01*(iOpen(pairs[x],timeframe,0))){pairs_value[x] = -1;}
       }
        
            
