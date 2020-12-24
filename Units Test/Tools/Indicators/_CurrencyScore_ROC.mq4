@@ -124,7 +124,9 @@ int i,limit;
       //for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =iMomentum(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,bar_not_calculate)-0;}  //Momentum Approach
       //for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {pairs_value[j] =iADX(pairs[j],timeframe_rsi,period_rsi,PRICE_OPEN,MODE_MAIN,bar_not_calculate);if(pairs_value[j]==0){pairs_value[j]=1;};}  //Momentum Approach
          for( int j = 0 ; j < ArraySize(pairs_value) ; j++ ) {
-            pairs_value[j] =((iOpen(pairs[j],timeframe,i)- iOpen(pairs[j],timeframe,ref_bar))*100/iOpen(pairs[j],timeframe,ref_bar));    
+            if (iOpen(pairs[j],timeframe,ref_bar)!=0){
+            pairs_value[j] =((iOpen(pairs[j],timeframe,i)- iOpen(pairs[j],timeframe,ref_bar))*100/iOpen(pairs[j],timeframe,ref_bar));
+            }    
             //if(pairs_value[j]==0){pairs_value[j]=1;};
             //Print("Pair "+j+" : "+ pairs_value[j]);
          }           
