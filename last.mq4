@@ -154,16 +154,33 @@ void closeAllOrder(int type){ //int type 1 = close all order buy, type 2 = close
 
 void openOrderStrategy(){
    // get best pair to trade and open order if there is no order in open list
-Print("Previous Best Pair: "+previousBestPair+ " / Current Best Pair: "+bestPairToTrade);
+//Print("Previous Best Pair: "+previousBestPair+ " / Current Best Pair: "+bestPairToTrade);
+ double hull_buffer0_val1;double hull_buffer0_val2;
+ double hull_buffer1_val1;double hull_buffer1_val2;
+ bool hull_is_pivot= false;
+ bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA    
+      hull_buffer0_val1 = iCustom(bestPairToTrade,60,"hull_moving_average_2.0_nmc",14,0,1);
+      hull_buffer0_val2 = iCustom(bestPairToTrade,60,"hull_moving_average_2.0_nmc",14,0,2);
+      hull_buffer1_val1 = iCustom(bestPairToTrade,60,"hull_moving_average_2.0_nmc",14,1,1);
+      hull_buffer1_val2 = iCustom(bestPairToTrade,60,"hull_moving_average_2.0_nmc",14,1,2);
+    
+      hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
+      hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
+      hull_is_pivot = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
 
-   if((previousBestPair!= bestPairToTrade)&&(is_this_pair_in_OpenPairList(bestPairToTrade)!=1)){
+
+
+
+   if((previousBestPair!= bestPairToTrade)&&(is_this_pair_in_OpenPairList(bestPairToTrade)!=1)&& hull_is_pivot){
       int result;
       RefreshRates();
-      switch (buyOrSell){         
-         case 0:  result= openSell(bestPairToTrade,MagicNumber+"S");Print("open sell order result: "+result);break;
-         case 1:  result= openBuy(bestPairToTrade,MagicNumber+"B");Print("open buy order result: "+result);break; 
-      }
       
+      if (buyOrSell && hull_revert_from_Low_Hi){
+         result= openSell(bestPairToTrade,MagicNumber+"S");Print("open sell order result: "+result);}
+      if (!buyOrSell && hull_revert_from_Hi_Low){
+         result= openBuy(bestPairToTrade,MagicNumber+"B");Print("open buy order result: "+result);    
+      }
+     
    }  
    previousBestPair = bestPairToTrade ;   
 }
@@ -439,24 +456,3 @@ Comment("Best Pair to Trade "+ bestPairToTrade);
       }*/
 }
 
-void hma_indicator(string symbol,int timeframe,int period ,bool &hull_is_pivot[], bool &hull_pivot_status[]){
-   hull_is_pivot[0]= false;
-   double hull_buffer0_val1;double hull_buffer0_val2;
-   double hull_buffer1_val1;double hull_buffer1_val2;
-   bool hull_revert_from_Hi_Low ; bool hull_revert_from_Low_Hi; // : for measure the turning point of hull-MA  
-       
-      hull_buffer0_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,1);
-      hull_buffer0_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,0,2);
-      hull_buffer1_val1 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,1);
-      hull_buffer1_val2 = iCustom(symbol,timeframe,"hull_moving_average_2.0_nmc",period,1,2);
-    
-      hull_revert_from_Hi_Low = ((hull_buffer1_val2 == EMPTY_VALUE)&&(hull_buffer1_val1 != EMPTY_VALUE));
-      hull_revert_from_Low_Hi = ((hull_buffer1_val2 != EMPTY_VALUE)&&(hull_buffer1_val1 == EMPTY_VALUE));
-      hull_is_pivot[0] = (hull_revert_from_Hi_Low || hull_revert_from_Low_Hi);
-      
-         if (hull_is_pivot[0]){      
-            if (hull_revert_from_Hi_Low){hull_pivot_status[0] = 0;}
-            if (hull_revert_from_Low_Hi){hull_pivot_status[0] = 1;}
-         } 
-//Comment(symbol+" : Hull is pivot = "+hull_is_pivot +" / Status = "+hull_pivot_status[pair_string_convert_to_int(symbol)]); 
-}
